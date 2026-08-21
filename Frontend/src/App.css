@@ -1,0 +1,237 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f4ef;
+  color: #222;
+}
+
+.bookstore-app {
+  min-height: 100vh;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bookstore-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.bookstore-header h1 {
+  margin: 0;
+  font-size: 38px;
+}
+
+.bookstore-header p {
+  margin: 12px auto 0;
+  max-width: 620px;
+  color: #555;
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+/* Header layout (Amazon-like) */
+.bookstore-header {
+  display: grid;
+  grid-template-columns: 1fr 480px 220px;
+  gap: 16px;
+  align-items: center;
+}
+
+.header-left h1 { margin: 0 }
+.muted { color: #666; margin-top: 6px }
+
+.header-center { display:flex; gap:8px; align-items:center }
+.search-input { flex:1; padding:10px 12px; border-radius:6px; border:1px solid #ccc }
+.sort-select { padding:10px 12px; border-radius:6px; border:1px solid #ccc }
+
+.header-right { display:flex; justify-content:flex-end }
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+.modal-card {
+  width: 880px;
+  max-width: 95%;
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+}
+
+.modal-close { position:absolute; right:10px; top:6px; border:none; background:transparent; font-size:22px; cursor:pointer }
+.modal-body { display:flex; gap:18px; align-items:flex-start }
+.modal-poster { width: 320px; height: 420px; object-fit:cover; border-radius:8px }
+.modal-info h2 { margin-top:0 }
+.modal-price { margin-top:12px; font-size:20px; font-weight:700 }
+
+.book-card {
+  background: #fff;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid #e8e3db;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.07);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 36px rgba(0,0,0,0.14);
+}
+
+.book-poster {
+  width: 100%;
+  display: block;
+  height: 220px;
+  object-fit: cover;
+}
+
+.book-poster.small {
+  height: 160px;
+}
+
+.book-details {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.book-details h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  color: #222;
+}
+
+.book-details p {
+  margin: 6px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.book-price {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.book-cta {
+  margin-top: 12px;
+  display: inline-block;
+  width: 100%;
+  background: #1c5d99;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.book-cta:hover {
+  background: #174c7b;
+}
+
+.cart-button {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cart-panel {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  padding: 12px;
+  z-index: 40;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-remove {
+  background: transparent;
+  border: none;
+  color: #b00;
+  cursor: pointer;
+}
+
+.cart-total {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout {
+  background: #2b8a3e;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.book-details .book-price {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2b2a29;
+}
+
+.book-details .book-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  color: #777;
+  font-size: 13px;
+}
+
+.book-cta {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: #1c5d99;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.book-cta:hover {
+  background: #174c7b;
+}
+
