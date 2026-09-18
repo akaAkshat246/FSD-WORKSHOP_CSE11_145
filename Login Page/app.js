@@ -727,9 +727,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 850);
   });
 
-  // --------------------------------------------------------------------------
-  // EDIT USER MODAL
-  // --------------------------------------------------------------------------
+
+
+  
   const editUserModal = document.getElementById('editUserModal');
   const closeEditModalBtn = document.getElementById('closeEditModalBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
