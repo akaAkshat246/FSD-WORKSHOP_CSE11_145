@@ -2,10 +2,12 @@ import express from "express";
 import os from "os";
 import dotenv from "dotenv";
 import cors from 'cors'
+import connectDB from './db.js';
+
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 
 let userData = [
