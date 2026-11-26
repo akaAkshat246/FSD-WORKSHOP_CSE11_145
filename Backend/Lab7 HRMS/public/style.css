@@ -1,0 +1,96 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+}
+
+header {
+    background-color: #17263d;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 95%;
+    margin: 30px auto;
+}
+
+h2 {
+    color: #17263d;
+}
+
+form {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+input {
+    padding: 12px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+button {
+    padding: 12px;
+    background-color: #254fad;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+th {
+    background-color: #17263d;
+    color: white;
+}
+
+th, td {
+    padding: 15px;
+    border: 1px solid #dddddd;
+    text-align: center;
+}
+
+tr:hover {
+    background-color: #f0f4fa;
+}
+
+.edit {
+    background-color: #2563eb;
+    margin: 3px;
+}
+
+.delete {
+    background-color: #dc2626;
+    margin: 3px;
+}
+
+@media (max-width: 768px) {
+    form {
+        grid-template-columns: 1fr;
+    }
+}

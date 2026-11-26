@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Human Resource Management System</h1>
+    </header>
+
+    <div class="container">
+
+        <h2>Employee Details</h2>
+
+        <form id="employeeForm">
+
+            <input type="number" id="Empid"
+                placeholder="Employee ID" required>
+
+            <input type="text" id="Name"
+                placeholder="Employee Name" required>
+
+            <input type="text" id="Designation"
+                placeholder="Designation" required>
+
+            <input type="tel" id="MOB"
+                placeholder="Mobile Number" required>
+
+            <input type="date" id="DOJ" required>
+
+            <input type="text" id="Department"
+                placeholder="Department" required>
+
+            <input type="number" id="Salary"
+                placeholder="Salary" required>
+
+            <button type="submit" id="submitBtn">
+                Add Employee
+            </button>
+
+        </form>
+
+        <h2>Employee Records</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Mobile No.</th>
+                        <th>DOJ</th>
+                        <th>Department</th>
+                        <th>Salary</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="employeeTable">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
