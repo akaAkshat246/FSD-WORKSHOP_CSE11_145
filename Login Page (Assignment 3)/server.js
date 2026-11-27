@@ -1,6 +1,8 @@
 import http from "http";
 import os from "os";
 import fs from "node:fs/promises";
+import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
+import { promisify } from "node:util";
 import EventEmitter from "node:events";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,6 +27,46 @@ myEmitter.on("userDeleted", (id) => {
 // File Handling with userData.json
 // --------------------------------------------------------------------------
 const filePath = path.join(__dirname, "userData.json");
+const scrypt = promisify(scryptCallback);
+const sessions = new Map();
+
+function sendJson(res, status, data) {
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(data));
+}
+
+function publicUser(user) {
+  const { passwordHash, ...details } = user;
+  return details;
+}
+
+async function readJson(req) {
+  let body = "";
+  for await (const chunk of req) body += chunk;
+  return JSON.parse(body || "{}");
+}
+
+async function hashPassword(password, salt = randomBytes(16).toString("hex")) {
+  const hash = await scrypt(password, salt, 64);
+  return `${salt}:${hash.toString("hex")}`;
+}
+
+async function passwordMatches(password, storedHash) {
+  if (!storedHash) return false;
+
+  const [salt, savedHash] = storedHash.split(":");
+  if (!salt || !savedHash) return false;
+
+  const savedBytes = Buffer.from(savedHash, "hex");
+  const enteredBytes = await scrypt(password, salt, savedBytes.length);
+  return savedBytes.length === enteredBytes.length && timingSafeEqual(savedBytes, enteredBytes);
+}
+
+function hasSession(req) {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  return sessions.has(token);
+}
 
 async function createFile(data) {
   try {
@@ -141,6 +183,70 @@ async function run() {
     // ------------------------------------------------------------------------
     // API ROUTES
     // ------------------------------------------------------------------------
+
+    if (url === "/signup" && method === "POST") {
+      try {
+        const { email, password } = await readJson(req);
+        const cleanEmail = String(email || "").trim().toLowerCase();
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail) || typeof password !== "string" || password.length < 8) {
+          sendJson(res, 400, { message: "Enter a valid email and a password of at least 8 characters." });
+          return;
+        }
+
+        const users = await readFile();
+        if (users.some((user) => String(user.email || "").toLowerCase() === cleanEmail)) {
+          sendJson(res, 409, { message: "An account with this email already exists." });
+          return;
+        }
+
+        const maxId = users.reduce((max, user) => Math.max(max, user.id || 0), 0);
+        const newUser = {
+          id: maxId + 1,
+          name: cleanEmail.split("@")[0],
+          email: cleanEmail,
+          passwordHash: await hashPassword(password),
+          role: "Member",
+          memberSince: new Date().toLocaleDateString("en", { month: "short", year: "numeric" })
+        };
+
+        users.push(newUser);
+        await createFile(users);
+        myEmitter.emit("userCreated", newUser);
+        sendJson(res, 201, { message: "Account created. You can now log in.", user: publicUser(newUser) });
+      } catch {
+        sendJson(res, 400, { message: "Could not create account." });
+      }
+      return;
+    }
+
+    if (url === "/login" && method === "POST") {
+      try {
+        const { email, password } = await readJson(req);
+        const cleanEmail = String(email || "").trim().toLowerCase();
+        const users = await readFile();
+        const user = users.find((item) => String(item.email || "").toLowerCase() === cleanEmail);
+
+        if (!user || typeof password !== "string" || !(await passwordMatches(password, user.passwordHash))) {
+          sendJson(res, 401, { message: "Email or password is incorrect." });
+          return;
+        }
+
+        const token = randomBytes(32).toString("hex");
+        sessions.set(token, user.id);
+        sendJson(res, 200, { token, user: publicUser(user) });
+      } catch {
+        sendJson(res, 400, { message: "Could not log in." });
+      }
+      return;
+    }
+
+    if (url === "/logout" && method === "POST") {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      sessions.delete(token);
+      sendJson(res, 200, { message: "Logged out." });
+      return;
+    }
     
     // GET /msg
     if (url === "/msg" && method === "GET") {
@@ -164,10 +270,16 @@ async function run() {
 
     // GET /employee OR GET /user OR GET /userData
     if ((url === "/employee" || url === "/user" || url === "/userData") && method === "GET") {
+      if (url === "/employee" && !hasSession(req)) {
+        sendJson(res, 401, { message: "Please log in first." });
+        return;
+      }
+
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       const users = await readFile();
-      res.end(JSON.stringify(users));
+      const signedUpUsers = url === "/employee" ? users.filter((user) => user.passwordHash) : users;
+      res.end(JSON.stringify(signedUpUsers.map(publicUser)));
       return;
     }
 
@@ -180,7 +292,7 @@ async function run() {
       res.setHeader("Content-Type", "application/json");
       if (user) {
         res.statusCode = 200;
-        res.end(JSON.stringify(user));
+        res.end(JSON.stringify(publicUser(user)));
       } else {
         res.statusCode = 404;
         res.end(JSON.stringify({ message: "User not found" }));
@@ -221,7 +333,7 @@ async function run() {
           res.end(
             JSON.stringify({
               message: "User added successfully",
-              user: newUser,
+              user: publicUser(newUser),
             })
           );
         } catch (err) {
@@ -235,6 +347,11 @@ async function run() {
 
     // DELETE /delete/:id OR DELETE /user/:id
     if ((url.startsWith("/delete/") || url.startsWith("/user/")) && method === "DELETE") {
+      if (!hasSession(req)) {
+        sendJson(res, 401, { message: "Please log in first." });
+        return;
+      }
+
       const parts = url.split("/");
       const id = Number(parts[2]);
       const users = await readFile();
@@ -251,13 +368,17 @@ async function run() {
       const deletedUser = users.splice(index, 1)[0];
       await createFile(users);
 
+      for (const [token, userId] of sessions) {
+        if (userId === id) sessions.delete(token);
+      }
+
       myEmitter.emit("userDeleted", id);
 
       res.statusCode = 200;
       res.end(
         JSON.stringify({
           message: "User deleted successfully",
-          user: deletedUser,
+          user: publicUser(deletedUser),
         })
       );
       return;
@@ -265,6 +386,11 @@ async function run() {
 
     // PUT /edit/:id OR PUT /user/:id
     if ((url.startsWith("/edit/") || url.startsWith("/user/")) && method === "PUT") {
+      if (!hasSession(req)) {
+        sendJson(res, 401, { message: "Please log in first." });
+        return;
+      }
+
       const parts = url.split("/");
       const id = Number(parts[2]);
       let body = "";
@@ -287,8 +413,17 @@ async function run() {
             return;
           }
 
+          const updatedEmail = String(updatedData.email || updatedData.Email || user.email).trim().toLowerCase();
+          const emailInUse = users.some((item) => item.id !== id && item.email.toLowerCase() === updatedEmail);
+
+          if (emailInUse) {
+            res.statusCode = 409;
+            res.end(JSON.stringify({ message: "Another account already uses this email." }));
+            return;
+          }
+
           if (updatedData.name || updatedData.Name) user.name = updatedData.name || updatedData.Name;
-          if (updatedData.email || updatedData.Email) user.email = updatedData.email || updatedData.Email;
+          if (updatedData.email || updatedData.Email) user.email = updatedEmail;
           if (updatedData.role || updatedData.Role) user.role = updatedData.role || updatedData.Role;
 
           await createFile(users);
@@ -297,7 +432,7 @@ async function run() {
           res.end(
             JSON.stringify({
               message: "User updated successfully",
-              user: user,
+              user: publicUser(user),
             })
           );
         } catch (err) {

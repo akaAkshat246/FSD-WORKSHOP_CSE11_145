@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVS Account</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="account-box">
+    <section id="authPage">
+      <h1>AVS</h1>
+      <p>Sign in or create an account</p>
+
+      <div class="form-switch">
+        <button id="showLogin" type="button">Log in</button>
+        <button id="showSignup" type="button">Sign up</button>
+      </div>
+
+      <form id="loginForm">
+        <h2>Log in</h2>
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" autocomplete="email" required>
+
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+
+        <button type="submit">Log in</button>
+      </form>
+
+      <form id="signupForm" hidden>
+        <h2>Create account</h2>
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" autocomplete="email" required>
+
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required>
+
+        <button type="submit">Sign up</button>
+      </form>
+
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <header class="dashboard-header">
+        <div>
+          <h1>AVS Users</h1>
+          <p>Signed-up accounts</p>
+        </div>
+        <button id="logout" type="button">Log out</button>
+      </header>
+      <p id="dashboardMessage" role="status" aria-live="polite"></p>
+      <div id="userList" class="user-list"></div>
+    </section>
+  </main>
+</body>
+</html>

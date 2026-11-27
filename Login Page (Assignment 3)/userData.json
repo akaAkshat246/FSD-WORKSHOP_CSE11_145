@@ -54,5 +54,21 @@
     "role": "Student",
     "memberSince": "September 2026",
     "destinations": 5
+  },
+  {
+    "id": 8,
+    "name": "Akshat Vats",
+    "email": "akshatavs1122@gmail.com",
+    "role": "Dimension Traveler",
+    "memberSince": "September 2026",
+    "destinations": 12
+  },
+  {
+    "id": 9,
+    "name": "akarshb23",
+    "email": "akarshb23@gmail.com",
+    "passwordHash": "8d81de5dd5582235572cf1c312df553d:778946537d2c16677c53db1e63f272fe1cfcf18a2d16f618fd913872c1d0e15f803e5fbcbd1ae5e3e0e36373d9684b6f4665368ae1e3e19d2c91b87679b7659c",
+    "role": "Member",
+    "memberSince": "Oct 2026"
   }
 ]
